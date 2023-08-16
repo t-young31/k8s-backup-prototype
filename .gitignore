@@ -12,5 +12,4 @@ build/
 .terraform/
 *.tfstate*
 # Configuration
-config.yaml
-!config.sample.yaml
+*config*.yaml
