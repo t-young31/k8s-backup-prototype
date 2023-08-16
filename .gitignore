@@ -1,0 +1,16 @@
+# IntelliJ
+.idea/
+# Python
+.venv/
+build/
+*.egg-info/
+*.pyc
+# Secrets
+*.env*
+!.env.sample
+# Terraform
+.terraform/
+*.tfstate*
+# Configuration
+config.yaml
+!config.sample.yaml
