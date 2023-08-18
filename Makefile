@@ -17,11 +17,9 @@ define terraform-destroy
 	terraform apply -destroy --auto-approve
 endef
 
-all:
-	$(call terraform-apply, .)
+all: aws
 
-destroy:
-	$(call terraform-destroy, .)
+destroy: aws-destroy
 
 aws-login:
 	aws configure sso
@@ -31,9 +29,3 @@ aws:
 
 aws-destroy:
 	$(call terraform-destroy, ./aws)
-
-local-k3d:
-	$(call terraform-apply, ./local-k3d)
-
-local-k3d-destroy:
-	$(call terraform-apply, ./local-k3d)
