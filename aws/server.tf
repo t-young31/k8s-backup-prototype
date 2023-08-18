@@ -1,6 +1,6 @@
 resource "aws_instance" "server" {
   ami           = data.aws_ami.rhel9.id
-  instance_type = "t3a.large"
+  instance_type = "t3a.xlarge"
   key_name      = aws_key_pair.ssh.key_name
 
   subnet_id              = module.vpc.public_subnets[0]
@@ -13,29 +13,31 @@ resource "aws_instance" "server" {
   user_data = templatefile(
     "${path.module}/cloud_init.template.sh",
     {
-      k3s_version = local.k3s_version
+      k3s_version                = local.k3s_version
+      longhorn_access_key_id     = aws_iam_access_key.longhorn.id
+      longhorn_access_key_secret = aws_iam_access_key.longhorn.secret
     }
   )
 
   root_block_device {
-    volume_size = 30 # GB
+    volume_size = 50 # GB
     volume_type = "gp3"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "echo 'Waiting for cloud-init to complete...'",
-      "cloud-init status --wait > /dev/null",
-      "echo 'Completed cloud-init!'"
-    ]
+  #provisioner "remote-exec" {
+  #  inline = [
+  #    "echo 'Waiting for cloud-init to complete...'",
+  #    "cloud-init status --wait > /dev/null",
+  #    "echo 'Completed cloud-init!'"
+  #  ]
 
-    connection {
-      type        = "ssh"
-      host        = self.public_ip
-      user        = local.ec2_username
-      private_key = tls_private_key.global_key.private_key_pem
-    }
-  }
+  #  connection {
+  #    type        = "ssh"
+  #    host        = self.public_ip
+  #    user        = local.ec2_username
+  #    private_key = tls_private_key.global_key.private_key_pem
+  #  }
+  #}
 
   lifecycle {
     ignore_changes = [user_data]

@@ -33,6 +33,8 @@ helm repo add longhorn https://charts.longhorn.io
 helm repo update
 
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+echo "KUBECONFIG=""$KUBECONFIG" | sudo tee -a /etc/profile
+
 helm upgrade --install \
   longhorn longhorn/longhorn \
   --namespace longhorn-system \
@@ -85,3 +87,9 @@ spec:
 EOF
 
 kubectl -n longhorn-system apply -f longhorn-ingress.yml
+
+# Create the backend for the backups
+kubectl create secret generic aws-s3-longhorn \
+    --from-literal=AWS_ACCESS_KEY_ID=${longhorn_access_key_id} \
+    --from-literal=AWS_SECRET_ACCESS_KEY=${longhorn_access_key_secret} \
+    -n longhorn-system
