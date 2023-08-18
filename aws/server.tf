@@ -37,6 +37,10 @@ resource "aws_instance" "server" {
     }
   }
 
+  lifecycle {
+    ignore_changes = [user_data]
+  }
+
   depends_on = [
     aws_security_group_rule.all_ingress_from_deployers_ip,
     module.vpc

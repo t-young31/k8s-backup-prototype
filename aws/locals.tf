@@ -4,6 +4,8 @@ locals {
 
   k3s_version = "v1.27.3+k3s1"
 
+  bucket_name = aws_s3_bucket.backup.bucket
+
   tags = {
     Repo  = "k8s-backup-prototype"
     Owner = data.aws_caller_identity.current.arn
