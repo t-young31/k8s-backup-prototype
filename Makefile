@@ -18,7 +18,10 @@ define terraform-destroy
 endef
 
 all:
-	echo "Please make a specific target"; exit 1
+	$(call terraform-apply, .)
+
+destroy:
+	$(call terraform-destroy, .)
 
 aws-login:
 	aws configure sso
@@ -30,7 +33,7 @@ aws-destroy:
 	$(call terraform-destroy, ./aws)
 
 local-k3d:
-	./local-k3d/deploy.sh
+	$(call terraform-apply, ./local-k3d)
 
 local-k3d-destroy:
-	./local-k3d/destroy.sh
+	$(call terraform-apply, ./local-k3d)

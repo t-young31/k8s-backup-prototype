@@ -14,5 +14,3 @@ fi
 echo "Exporting variables in ${env_filepath} file into environment"
 read -ra args < <(grep -v '^#' "$env_filepath" | xargs)
 export "${args[@]}"
-
-export CLUSTER_CONFIG_FILE="kube_config.yaml"
