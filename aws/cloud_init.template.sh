@@ -45,9 +45,16 @@ helm upgrade --install \
   --repo https://kubernetes.github.io/ingress-nginx \
   --namespace ingress-nginx --create-namespace
 
+# Wait for nginx ingress to be up
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=120s
+
 # Create an ingress for accessing the UI
 USER=admin
 PASSWORD=$(openssl rand -base64 32)
+echo "longhorn password: $PASSWORD"
 echo "$USER"":$(openssl passwd -stdin -apr1 <<< $PASSWORD)" >> auth
 kubectl -n longhorn-system create secret generic basic-auth --from-file=auth
 
@@ -64,6 +71,7 @@ metadata:
     nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required '
     nginx.ingress.kubernetes.io/proxy-body-size: 10000m
 spec:
+  ingressClassName: nginx
   rules:
   - http:
       paths:
