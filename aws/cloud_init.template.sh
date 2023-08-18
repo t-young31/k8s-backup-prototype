@@ -33,7 +33,7 @@ helm repo add longhorn https://charts.longhorn.io
 helm repo update
 
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-echo "KUBECONFIG=""$KUBECONFIG" | sudo tee -a /etc/profile
+echo "KUBECONFIG=""$KUBECONFIG" | sudo tee -a /etc/environment
 
 helm upgrade --install \
   longhorn longhorn/longhorn \
@@ -93,3 +93,8 @@ kubectl create secret generic aws-s3-longhorn \
     --from-literal=AWS_ACCESS_KEY_ID=${longhorn_access_key_id} \
     --from-literal=AWS_SECRET_ACCESS_KEY=${longhorn_access_key_secret} \
     -n longhorn-system
+
+# Disable SElinux for longhorn to function
+dnf install grubby -y
+grubby --update-kernel ALL --args selinux=0
+reboot
