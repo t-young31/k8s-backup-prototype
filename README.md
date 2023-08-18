@@ -6,9 +6,10 @@
 
 2. Run `make`
 
-3. Login to the longhorn UI to create a backup target, following the
-[docs](https://longhorn.io/docs/1.5.1/snapshots-and-backups/backup-and-restore/set-backup-target/)
-and allow **Replica Node Level Soft Anti-Affinity**
+3. Login to the longhorn UI to create a backup target from the settings pane
+    - **Backup Target**: <from terraform output>
+    - **Backup Target Credential Secret**: aws-s3-longhorn
+    - **Replica Node Level Soft Anti-Affinity**: Enable
 
 4. SSH onto the EC2 instance and create a sample volume to backup
 ```bash
