@@ -10,6 +10,6 @@ host:     http://${aws_instance.server.public_ip}
 EOF
 }
 
-output "s3_url" {
+output "backup_target" {
   value = "s3://${local.bucket_name}@${var.aws_region}/"
 }

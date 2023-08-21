@@ -94,6 +94,52 @@ kubectl create secret generic aws-s3-longhorn \
     --from-literal=AWS_SECRET_ACCESS_KEY=${longhorn_access_key_secret} \
     -n longhorn-system
 
+
+# Install cryptsetup then create a passphrase for kernel-level encrpytion of
+# longhorn volumes, then use that to create a custom storage class.
+# See: https://longhorn.io/blog/longhorn-v1.2/
+dnf install cryptsetup -y
+
+crypt_passphrase=$(openssl rand -base64 32)
+echo "crypt passphrase: $crypt_passphrase"
+
+cat <<EOF >> longhorn-crypt-secret.yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: longhorn-crypto
+  namespace: longhorn-system
+stringData:
+  CRYPTO_KEY_VALUE: "${crypt_passphrase}"
+  CRYPTO_KEY_PROVIDER: "secret"
+EOF
+kubectl -n longhorn-system apply -f longhorn-crypt-secret.yml
+
+cat <<EOF >> longhorn-storage-class.yml
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: longhorn-crypto-global
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+parameters:
+  numberOfReplicas: "1"
+  staleReplicaTimeout: "2880" # 48 hours in minutes
+  fromBackup: ""
+  encrypted: "true"
+  # global secret that contains the encryption key that will be used for all volumes
+  csi.storage.k8s.io/provisioner-secret-name: "longhorn-crypto"
+  csi.storage.k8s.io/provisioner-secret-namespace: "longhorn-system"
+  csi.storage.k8s.io/node-publish-secret-name: "longhorn-crypto"
+  csi.storage.k8s.io/node-publish-secret-namespace: "longhorn-system"
+  csi.storage.k8s.io/node-stage-secret-name: "longhorn-crypto"
+  csi.storage.k8s.io/node-stage-secret-namespace: "longhorn-system"
+EOF
+kubectl -n longhorn-system apply -f longhorn-storage-class.yml
+
+
 # Disable SElinux for longhorn to function
 dnf install grubby -y
 grubby --update-kernel ALL --args selinux=0
