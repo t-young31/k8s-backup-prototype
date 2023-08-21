@@ -110,7 +110,7 @@ metadata:
   name: longhorn-crypto
   namespace: longhorn-system
 stringData:
-  CRYPTO_KEY_VALUE: "${crypt_passphrase}"
+  CRYPTO_KEY_VALUE: "$crypt_passphrase"
   CRYPTO_KEY_PROVIDER: "secret"
 EOF
 kubectl -n longhorn-system apply -f longhorn-crypt-secret.yml
